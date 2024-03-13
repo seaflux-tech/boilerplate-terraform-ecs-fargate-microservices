@@ -1,0 +1,90 @@
+{
+  "family": "example-php",
+  "containerDefinitions": [
+      {
+          "name": "php-fpm",
+          "image": "391372672054.dkr.ecr.<your-region>.amazonaws.com/example-php:latest",
+          "cpu": 0,
+          "memoryReservation": 205,
+          "portMappings": [
+              {
+                  "name": "php-9000-tcp",
+                  "containerPort": 9000,
+                  "hostPort": 0,
+                  "protocol": "tcp"
+              }
+          ],
+          "essential": true,
+          "environment": [],
+          "mountPoints": [
+              {
+                  "sourceVolume": "log_volumes",
+                  "containerPath": "/var/www/example"
+              }
+          ],
+          "volumesFrom": [],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-create-group": "true",
+                  "awslogs-group": "/ecs/example-php",
+                  "awslogs-region": "<your-region>",
+                  "awslogs-stream-prefix": "ecs"
+              }
+          }
+      },
+      {
+          "name": "nginx",
+          "image": "391372672054.dkr.ecr.<your-region>.amazonaws.com/example-nginx:nginx-testing",
+          "cpu": 0,
+          "memoryReservation": 102,
+          "links": [
+              "php-fpm:php"
+          ],
+          "portMappings": [
+              {
+                  "name": "nginx-80-tcp",
+                  "containerPort": 80,
+                  "hostPort": 0,
+                  "protocol": "tcp"
+              }
+          ],
+          "essential": true,
+          "environment": [],
+          "mountPoints": [
+              {
+                  "sourceVolume": "log_volumes",
+                  "containerPath": "/var/www/example"
+              }
+          ],
+          "volumesFrom": [],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-create-group": "true",
+                  "awslogs-group": "/ecs/example-php",
+                  "awslogs-region": "<your-region>",
+                  "awslogs-stream-prefix": "ecs"
+              }
+          }
+      }
+  ],
+  "taskRoleArn": "arn:aws:iam::391372672054:role/ECS-Task-Execution-Role",
+  "executionRoleArn": "arn:aws:iam::391372672054:role/ECS-Task-Execution-Role",
+  "volumes": [
+      {
+          "name": "log_volumes",
+          "dockerVolumeConfiguration": {
+              "scope": "task",
+              "driver": "local"
+          }
+      }
+  ],
+  "requiresCompatibilities": [
+      "EC2"
+  ],
+  "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
+  }
+}
